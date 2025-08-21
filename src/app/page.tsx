@@ -1,78 +1,107 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Sidebar } from '@/components/layout/Sidebar'
+import { useState } from 'react'
 import { ChatInterface } from '@/components/chat/ChatInterface'
-import { useChat } from '@/hooks/useChat'
+import { Message } from '@/types/chat'
 
 export default function HomePage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const {
-    conversations,
-    currentConversation,
-    messages,
-    isLoading,
-    fetchConversations,
-    fetchConversation,
-    deleteConversation,
-    renameConversation,
-    sendMessage,
-    stopGeneration,
-    newChat
-  } = useChat()
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (status === 'loading') return
+  const handleSendMessage = async (message: string) => {
+    if (isLoading) return
+
+    setIsLoading(true)
     
-    if (!session) {
-      router.push('/auth/login')
-      return
+    // Add user message immediately
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: message,
+      role: 'USER',
+      conversationId: 'demo',
+      createdAt: new Date()
     }
+    
+    setMessages(prev => [...prev, userMessage])
 
-    fetchConversations()
-  }, [session, status, router, fetchConversations])
+    try {
+      // Call OpenAI API directly (simplified for demo)
+      const response = await fetch('/api/chat/demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      })
 
-  const handleSelectConversation = (id: string) => {
-    fetchConversation(id)
+      if (response.ok) {
+        const data = await response.json()
+        
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response,
+          role: 'ASSISTANT',
+          conversationId: 'demo',
+          createdAt: new Date()
+        }
+        
+        setMessages(prev => [...prev, assistantMessage])
+      } else {
+        throw new Error('Failed to get response')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Sorry, I encountered an error. Please make sure you have set up your OpenAI API key in the environment variables.',
+        role: 'ASSISTANT',
+        conversationId: 'demo',
+        createdAt: new Date()
+      }
+      
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleSendMessage = (message: string, conversationId?: string) => {
-    sendMessage(message, conversationId)
+  const handleStopGeneration = () => {
+    setIsLoading(false)
   }
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
-
-  if (!session) {
-    return null
+  const handleNewChat = () => {
+    setMessages([])
   }
 
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900">
-      <Sidebar
-        conversations={conversations}
-        currentConversationId={currentConversation?.id}
-        onNewChat={newChat}
-        onSelectConversation={handleSelectConversation}
-        onDeleteConversation={deleteConversation}
-        onRenameConversation={renameConversation}
-      />
+      {/* Simple sidebar */}
+      <div className="w-64 bg-gray-900 text-white p-4">
+        <button
+          onClick={handleNewChat}
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 px-4 py-2 rounded-lg mb-4"
+        >
+          + New Chat
+        </button>
+        <div className="text-sm text-gray-400">
+          <p className="mb-2">🎉 Demo Mode</p>
+          <p>No login required!</p>
+          <p className="mt-4 text-xs">
+            Messages: {messages.length}
+          </p>
+        </div>
+      </div>
       
-      <div className="flex-1 flex flex-col lg:ml-0 ml-0">
+      {/* Chat interface */}
+      <div className="flex-1 flex flex-col">
         <ChatInterface
-          conversation={currentConversation}
+          conversation={null}
           messages={messages}
           onSendMessage={handleSendMessage}
           isLoading={isLoading}
-          onStopGeneration={stopGeneration}
+          onStopGeneration={handleStopGeneration}
         />
       </div>
     </div>
