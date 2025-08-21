@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "buildCommand": "prisma generate && npm run build",
+  "devCommand": "npm run dev", 
+  "installCommand": "npm install && prisma generate",
   "framework": "nextjs",
   "regions": ["iad1"],
   "functions": {
@@ -15,7 +15,8 @@
   },
   "build": {
     "env": {
-      "NEXT_TELEMETRY_DISABLED": "1"
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "SKIP_ENV_VALIDATION": "true"
     }
   }
 }
