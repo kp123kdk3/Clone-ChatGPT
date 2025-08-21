@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChatInterface } from '@/components/chat/ChatInterface'
+import { ModernLayout } from '@/components/layout/ModernLayout'
 import { Message } from '@/types/chat'
 
 export default function HomePage() {
@@ -75,35 +75,33 @@ export default function HomePage() {
     setMessages([])
   }
 
-  return (
-    <div className="flex h-screen bg-white dark:bg-gray-900">
-      {/* Simple sidebar */}
-      <div className="w-64 bg-gray-900 text-white p-4">
-        <button
-          onClick={handleNewChat}
-          className="w-full bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 px-4 py-2 rounded-lg mb-4"
-        >
-          + New Chat
-        </button>
-        <div className="text-sm text-gray-400">
-          <p className="mb-2">🎉 Demo Mode</p>
-          <p>No login required!</p>
-          <p className="mt-4 text-xs">
-            Messages: {messages.length}
-          </p>
-        </div>
-      </div>
+  const handleRegenerateResponse = () => {
+    if (messages.length === 0) return
+    
+    // Find the last user message
+    const lastUserMessage = [...messages].reverse().find(msg => msg.role === 'USER')
+    if (lastUserMessage) {
+      // Remove the last assistant message and regenerate
+      setMessages(prev => prev.filter(msg => 
+        !(msg.role === 'ASSISTANT' && msg.id === messages[messages.length - 1]?.id)
+      ))
       
-      {/* Chat interface */}
-      <div className="flex-1 flex flex-col">
-        <ChatInterface
-          conversation={null}
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          onStopGeneration={handleStopGeneration}
-        />
-      </div>
-    </div>
+      // Re-send the last user message
+      setTimeout(() => {
+        handleSendMessage(lastUserMessage.content)
+      }, 100)
+    }
+  }
+
+  return (
+    <ModernLayout
+      messages={messages}
+      conversation={null}
+      onSendMessage={handleSendMessage}
+      isLoading={isLoading}
+      onStopGeneration={handleStopGeneration}
+      onRegenerateResponse={handleRegenerateResponse}
+      onNewChat={handleNewChat}
+    />
   )
 }
