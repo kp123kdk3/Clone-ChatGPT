@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Sparkles, Zap, Code, Plane, BookOpen, Lightbulb } from 'lucide-react'
+import React, { useState } from 'react'
+import { Sparkles, Zap, Code, Plane, BookOpen, Lightbulb, Send } from 'lucide-react'
 
 interface LandingProps {
   onSendMessage: (message: string) => void
@@ -37,99 +36,81 @@ export function Landing({ onSendMessage }: LandingProps) {
   }
 
   return (
-    <div className="relative flex-1 flex items-center justify-center bg-gradient-dark overflow-hidden">
-      {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-futuristic-primary rounded-full opacity-20 animate-particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 20}s`,
-              animationDuration: `${20 + Math.random() * 10}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Gradient mesh overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-futuristic-primary/10 via-transparent to-futuristic-secondary/10" />
-
+    <div className="relative flex-1 flex items-center justify-center bg-gradient-dark min-h-screen">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" />
+      
+      {/* Main content container - perfectly centered */}
       <div className="relative z-10 w-full max-w-4xl px-6 text-center">
-        {/* Main heading */}
-        <div className="mb-12 animate-fadeIn">
-          <h1 className="text-5xl md:text-7xl font-futuristic font-bold bg-gradient-to-r from-futuristic-primary via-futuristic-secondary to-futuristic-accent bg-clip-text text-transparent mb-6">
-            What's on your mind today?
-          </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+        
+        {/* Main heading - perfectly centered with consistent spacing */}
+        <div className="mb-8 animate-fadeIn">
+          <h1 className="text-lg md:text-xl font-semibold text-gray-200 mb-4">
             Ask me anything. I'm here to help you explore, create, and discover.
-          </p>
+          </h1>
         </div>
 
-        {/* Centered input box */}
-        <div className="mb-12 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-          <div className="relative max-w-3xl mx-auto">
-            <div className="relative bg-gradient-glass backdrop-blur-xl border border-white/10 rounded-2xl shadow-glass hover:shadow-futuristic-lg transition-all duration-500 group">
+        {/* Search bar - perfectly centered with max-width and responsive design */}
+        <div className="mb-8 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+          <div className="relative max-w-2xl w-full mx-auto">
+            <div className="flex items-center rounded-xl border border-gray-600 bg-gray-800 px-4 py-3 shadow-lg focus-within:ring-2 focus-within:ring-blue-500 transition-all duration-200">
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask anything..."
-                className="w-full bg-transparent border-0 rounded-2xl px-6 py-4 pr-20 text-lg text-white placeholder-gray-400 focus:outline-none focus:ring-0 resize-none min-h-[60px] max-h-[200px] leading-relaxed"
+                placeholder="Ask anything…"
+                className="w-full bg-transparent border-0 rounded-xl px-0 py-0 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-0 resize-none min-h-[48px] max-h-[200px] leading-relaxed text-base"
                 style={{ height: 'auto' }}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement
                   target.style.height = 'auto'
                   target.style.height = Math.min(target.scrollHeight, 200) + 'px'
                 }}
+                aria-label="Ask anything input field"
               />
               
-              {/* Send button */}
+              {/* Send button - perfectly aligned */}
               <button
                 onClick={handleSubmit}
                 disabled={!message.trim()}
-                className="absolute right-3 bottom-3 p-3 bg-gradient-to-r from-futuristic-primary to-futuristic-secondary rounded-xl text-white shadow-neon hover:shadow-futuristic-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group-hover:scale-105"
+                className="ml-3 p-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-white transition-all duration-200 ease-in-out flex-shrink-0"
+                aria-label="Send message"
               >
-                <Sparkles className="h-5 w-5" />
+                <Send className="h-4 w-4" />
               </button>
             </div>
-            
-            {/* Glowing border effect */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-futuristic-primary/20 via-futuristic-secondary/20 to-futuristic-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
           </div>
         </div>
 
-        {/* Suggested prompts */}
+        {/* Suggested prompts - perfectly aligned grid with responsive design */}
         <div className="animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-          <p className="text-gray-400 mb-6 text-lg">Try asking me about:</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 max-w-4xl mx-auto">
             {suggestedPrompts.map((prompt, index) => (
               <button
                 key={index}
                 onClick={() => handlePromptClick(prompt.text)}
-                className="group relative p-4 bg-gradient-glass backdrop-blur-xl border border-white/10 rounded-xl hover:border-futuristic-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-futuristic"
+                className="min-w-[200px] h-12 flex items-center justify-center rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-200 ease-in-out shadow-md hover:shadow-lg group"
+                aria-label={`Quick prompt: ${prompt.text}`}
               >
-                <div className="flex flex-col items-center space-y-3">
-                  <div className={`p-3 rounded-lg bg-gradient-to-r ${prompt.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-                    <prompt.icon className="h-6 w-6 text-white" />
+                <div className="flex items-center gap-2 px-3">
+                  <div className={`p-2 rounded-md bg-gradient-to-r ${prompt.color} shadow-sm`}>
+                    <prompt.icon className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-sm text-gray-300 group-hover:text-white transition-colors duration-300 font-medium">
+                  <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors duration-200">
                     {prompt.text}
                   </span>
                 </div>
-                
-                {/* Hover glow effect */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-futuristic-primary/10 to-futuristic-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
               </button>
             ))}
           </div>
         </div>
 
-        {/* Floating elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-futuristic-primary/20 to-futuristic-secondary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-gradient-to-r from-futuristic-accent/20 to-futuristic-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        {/* Additional info text */}
+        <div className="mt-8 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+          <p className="text-sm text-gray-400">
+            Press Enter to send • Shift + Enter for new line
+          </p>
+        </div>
       </div>
     </div>
   )
