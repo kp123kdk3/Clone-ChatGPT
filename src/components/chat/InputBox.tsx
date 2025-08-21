@@ -54,53 +54,56 @@ export function InputBox({
   }
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto px-4 py-4">
-        <div className="relative flex items-end gap-3">
+    <div className="bg-white dark:bg-gray-900 p-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="relative flex items-end gap-2">
           <div className="flex-1 relative">
             <textarea
               ref={textareaRef}
               value={message}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
-              placeholder="Send a message..."
+              placeholder="Message ChatGPT..."
               disabled={disabled}
               className={cn(
-                'w-full resize-none rounded-lg border border-gray-300 dark:border-gray-600',
+                'w-full resize-none rounded-2xl border border-gray-300 dark:border-gray-600',
                 'bg-white dark:bg-gray-800 px-4 py-3 pr-12',
                 'text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400',
-                'focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500',
+                'focus:border-gray-400 dark:focus:border-gray-500 focus:outline-none',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
-                'min-h-[44px] max-h-[200px]'
+                'min-h-[52px] max-h-[200px] text-base'
               )}
               style={{ height: 'auto' }}
             />
+            
+            {isLoading ? (
+              <button
+                onClick={handleStop}
+                className="absolute right-3 bottom-3 w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                disabled={disabled}
+              >
+                <Square className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+              </button>
+            ) : (
+              <button
+                onClick={handleSubmit}
+                disabled={!message.trim() || disabled}
+                className={cn(
+                  "absolute right-3 bottom-3 w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                  message.trim() && !disabled 
+                    ? "bg-gray-900 dark:bg-white hover:bg-gray-700 dark:hover:bg-gray-200" 
+                    : "bg-gray-200 dark:bg-gray-700"
+                )}
+              >
+                <Send className={cn(
+                  "h-4 w-4",
+                  message.trim() && !disabled 
+                    ? "text-white dark:text-gray-900" 
+                    : "text-gray-400 dark:text-gray-500"
+                )} />
+              </button>
+            )}
           </div>
-          
-          {isLoading ? (
-            <Button
-              onClick={handleStop}
-              variant="outline"
-              size="icon"
-              className="flex-shrink-0 h-11 w-11"
-              disabled={disabled}
-            >
-              <Square className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={!message.trim() || disabled}
-              size="icon"
-              className="flex-shrink-0 h-11 w-11 bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        
-        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
-          Press Shift + Enter for new line
         </div>
       </div>
     </div>
