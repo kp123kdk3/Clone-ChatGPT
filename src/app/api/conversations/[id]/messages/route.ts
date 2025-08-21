@@ -5,9 +5,10 @@ import { prisma } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -20,7 +21,7 @@ export async function GET(
     // Verify conversation belongs to user
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     })
@@ -34,7 +35,7 @@ export async function GET(
 
     const messages = await prisma.message.findMany({
       where: {
-        conversationId: params.id
+        conversationId: id
       },
       orderBy: {
         createdAt: 'asc'
@@ -53,9 +54,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -77,7 +79,7 @@ export async function POST(
     // Verify conversation belongs to user
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     })
@@ -93,14 +95,14 @@ export async function POST(
       data: {
         content,
         role,
-        conversationId: params.id
+        conversationId: id
       }
     })
 
     // Update conversation timestamp
     await prisma.conversation.update({
       where: {
-        id: params.id
+        id
       },
       data: {
         updatedAt: new Date()

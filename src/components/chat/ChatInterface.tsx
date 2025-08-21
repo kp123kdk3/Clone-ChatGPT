@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { MessageBubble } from './MessageBubble'
 import { InputBox } from './InputBox'
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { RotateCcw } from 'lucide-react'
 
 interface ChatInterfaceProps {
-  conversation?: Conversation
+  conversation?: Conversation | null
   messages: Message[]
   onSendMessage: (message: string, conversationId?: string) => void
   isLoading?: boolean
@@ -27,7 +27,6 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const { data: session } = useSession()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [streamingMessage, setStreamingMessage] = useState('')
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -35,22 +34,13 @@ export function ChatInterface({
 
   useEffect(() => {
     scrollToBottom()
-  }, [messages, streamingMessage])
+  }, [messages])
 
   const handleSendMessage = (message: string) => {
     onSendMessage(message, conversation?.id)
   }
 
   const allMessages = [...messages]
-  if (streamingMessage && isLoading) {
-    allMessages.push({
-      id: 'streaming',
-      content: streamingMessage,
-      role: 'ASSISTANT',
-      conversationId: conversation?.id || '',
-      createdAt: new Date()
-    })
-  }
 
   if (!session) {
     return (
@@ -118,7 +108,7 @@ export function ChatInterface({
           </div>
         ) : (
           <div className="w-full">
-            {allMessages.map((message, index) => (
+            {allMessages.map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}
             

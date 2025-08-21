@@ -5,9 +5,10 @@ import { prisma } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -19,7 +20,7 @@ export async function GET(
 
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       },
       include: {
@@ -50,9 +51,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -73,7 +75,7 @@ export async function PUT(
 
     const conversation = await prisma.conversation.updateMany({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       },
       data: {
@@ -100,9 +102,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -114,7 +117,7 @@ export async function DELETE(
 
     const conversation = await prisma.conversation.deleteMany({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id
       }
     })

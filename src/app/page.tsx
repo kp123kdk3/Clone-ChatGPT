@@ -15,7 +15,6 @@ export default function HomePage() {
     currentConversation,
     messages,
     isLoading,
-    streamingMessage,
     fetchConversations,
     fetchConversation,
     deleteConversation,

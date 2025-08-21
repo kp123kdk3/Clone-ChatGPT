@@ -184,8 +184,8 @@ export function useChat() {
           }
         }
       }
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name !== 'AbortError') {
         console.error('Error sending message:', error)
         // Remove the user message if there was an error
         setMessages(prev => prev.slice(0, -1))

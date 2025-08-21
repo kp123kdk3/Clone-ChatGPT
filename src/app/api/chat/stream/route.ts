@@ -5,6 +5,14 @@ import { prisma } from '@/lib/db'
 import { createStreamingChatCompletion, ChatMessage } from '@/lib/openai'
 import { generateConversationTitle } from '@/lib/utils'
 
+interface DatabaseMessage {
+  id: string
+  content: string
+  role: string
+  conversationId: string
+  createdAt: Date
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -26,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     let conversation
-    let messages: any[] = []
+    let messages: DatabaseMessage[] = []
 
     if (conversationId) {
       // Get existing conversation
@@ -64,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add user message to database
-    const userMessage = await prisma.message.create({
+    await prisma.message.create({
       data: {
         content: message,
         role: 'USER',
@@ -78,7 +86,7 @@ export async function POST(request: NextRequest) {
         role: 'system',
         content: 'You are a helpful AI assistant. Provide helpful, accurate, and thoughtful responses.'
       },
-      ...messages.map((msg: any) => ({
+      ...messages.map((msg: DatabaseMessage) => ({
         role: msg.role.toLowerCase() as 'user' | 'assistant',
         content: msg.content
       })),

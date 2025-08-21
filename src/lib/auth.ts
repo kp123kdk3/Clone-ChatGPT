@@ -74,8 +74,7 @@ export const authOptions: NextAuthOptions = {
     }
   },
   pages: {
-    signIn: '/auth/login',
-    signUp: '/auth/register'
+    signIn: '/auth/login'
   }
 }
 
@@ -90,7 +89,7 @@ export const verifyPassword = async (
   return await bcrypt.compare(password, hashedPassword)
 }
 
-export const generateToken = (payload: any): string => {
+export const generateToken = (payload: Record<string, unknown>): string => {
   return jwt.sign(payload, process.env.JWT_SECRET!, {
     expiresIn: '24h'
   })
@@ -99,7 +98,7 @@ export const generateToken = (payload: any): string => {
 export const verifyToken = (token: string) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET!)
-  } catch (error) {
+  } catch {
     return null
   }
 }
