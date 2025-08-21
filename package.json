@@ -13,7 +13,9 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "update": "bash scripts/auto-update.sh",
+    "deploy": "npm run build && npm run update"
   },
   "dependencies": {
     "@prisma/client": "^6.14.0",
