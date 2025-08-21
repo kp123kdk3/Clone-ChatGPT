@@ -1,12 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { ModernLayout } from '@/components/layout/ModernLayout'
-import { Message } from '@/types/chat'
+import { Layout } from '@/components/layout/Layout'
+import { Message, Conversation } from '@/types/chat'
 
 export default function HomePage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [conversations, setConversations] = useState<Conversation[]>([
+    {
+      id: 'demo',
+      title: 'Demo Conversation',
+      userId: 'demo',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ])
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
 
   const handleSendMessage = async (message: string) => {
     if (isLoading) return
@@ -18,7 +28,7 @@ export default function HomePage() {
       id: Date.now().toString(),
       content: message,
       role: 'USER',
-      conversationId: 'demo',
+      conversationId: currentConversation?.id || 'demo',
       createdAt: new Date()
     }
     
@@ -41,7 +51,7 @@ export default function HomePage() {
           id: (Date.now() + 1).toString(),
           content: data.response,
           role: 'ASSISTANT',
-          conversationId: 'demo',
+          conversationId: currentConversation?.id || 'demo',
           createdAt: new Date()
         }
         
@@ -57,7 +67,7 @@ export default function HomePage() {
         id: (Date.now() + 1).toString(),
         content: 'Sorry, I encountered an error. Please make sure you have set up your OpenAI API key in the environment variables.',
         role: 'ASSISTANT',
-        conversationId: 'demo',
+        conversationId: currentConversation?.id || 'demo',
         createdAt: new Date()
       }
       
@@ -73,6 +83,31 @@ export default function HomePage() {
 
   const handleNewChat = () => {
     setMessages([])
+    setCurrentConversation(null)
+  }
+
+  const handleSelectConversation = (id: string) => {
+    const conversation = conversations.find(c => c.id === id)
+    setCurrentConversation(conversation || null)
+    // In a real app, you would load the messages for this conversation
+    setMessages([])
+  }
+
+  const handleDeleteConversation = (id: string) => {
+    setConversations(prev => prev.filter(c => c.id !== id))
+    if (currentConversation?.id === id) {
+      setCurrentConversation(null)
+      setMessages([])
+    }
+  }
+
+  const handleRenameConversation = (id: string, title: string) => {
+    setConversations(prev => prev.map(c => 
+      c.id === id ? { ...c, title, updatedAt: new Date() } : c
+    ))
+    if (currentConversation?.id === id) {
+      setCurrentConversation(prev => prev ? { ...prev, title, updatedAt: new Date() } : null)
+    }
   }
 
   const handleRegenerateResponse = () => {
@@ -94,14 +129,18 @@ export default function HomePage() {
   }
 
   return (
-    <ModernLayout
+    <Layout
       messages={messages}
-      conversation={null}
+      conversation={currentConversation}
       onSendMessage={handleSendMessage}
       isLoading={isLoading}
       onStopGeneration={handleStopGeneration}
       onRegenerateResponse={handleRegenerateResponse}
       onNewChat={handleNewChat}
+      conversations={conversations}
+      onSelectConversation={handleSelectConversation}
+      onDeleteConversation={handleDeleteConversation}
+      onRenameConversation={handleRenameConversation}
     />
   )
 }
